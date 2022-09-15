@@ -31,45 +31,10 @@
     mode: "0644"
   register: node_exporter_plist_template
 
-- name: See if node_exporter service exists
-  ansible.builtin.command: "launchctl list {{ node_exporter_ident }}"
-  changed_when: false
-  ignore_errors: true
-  register: node_exporter_service_list
-
-- name: Get current UID
-  ansible.builtin.command: "id -u"
-  changed_when: false
-  register: uid
-
-- name: Unload node_exporter service if template file was changed  # noqa: no-handler
+- name: Start node_exporter daemon
   become: true
-  ansible.builtin.command: >
-    launchctl bootout gui/{{ uid.stdout }} {{ node_exporter_plist }}
-  changed_when: false
-  when: >
-    node_exporter_plist_template is changed and
-    node_exporter_service_list is succeeded
+  community.general.launchd:
+    name: "{{ node_exporter_ident }}"
+    state: started
+  when: node_exporter_plist_template is changed
 
-# The launchctl bootstrap command will fail if the service is already running, so we
-# check to see if the service is running before attempting to start it.
-- name: Check if node_exporter service is running
-  ansible.builtin.command: "pgrep node_exporter"
-  failed_when: false
-  changed_when: false
-  register: node_exporter_pgrep
-
-- name: Load node_exporter service
-  become: true
-  ansible.builtin.command: >
-    launchctl bootstrap gui/{{ uid.stdout }} {{ node_exporter_plist }}
-  register: node_exporter_load
-  when: node_exporter_pgrep.rc != 0
-
-- name: Assert that node_exporter service is running
-  # Normally we'd want to use `launchctl list` for this, but it has a nasty habit of
-  # randomly not returning the PID in its output, which makes it hard for us to see if the
-  # service is running.
-  ansible.builtin.command: "pgrep node_exporter"
-  changed_when: false
-  retries: 3
