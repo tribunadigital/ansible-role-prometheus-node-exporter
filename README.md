@@ -6,6 +6,8 @@ host. If the target system has a package manager with the `node_exporter` packag
 this role installs the software that way. Otherwise, the software will be built from
 sources.
 
+On Windows, this role installs [`windows_exporter`][windows-exporter].
+
 Requirements
 ------------
 
@@ -32,7 +34,12 @@ The following role variables are used for `node_exporter`'s service configuratio
 
 - `node_exporter_args`: A list of arguments to pass to the `node_exporter` service, one
   argument per list item.
+- `node_exporter_create_user`: When `true`, create the `node_exporter_user` user and the
+  corresponding `node_exporter_group` (only used on Unix platforms, defaults to `true`).
+- `node_exporter_group`: Group for the `node_exporter_user` user (only used on Unix
+  platforms).
 - `node_exporter_port`: Port to expose metrics on.
+- `node_exporter_user`: User to run `node_exporter` as (only used on Unix platforms).
 
 The following variables are used when building `node_exporter` from sources.
 
@@ -41,9 +48,11 @@ The following variables are used when building `node_exporter` from sources.
   system types (see the "Requirements" section above).
 - `node_exporter_binary_arch`: Binary architecture to fetch when downloading the
   `node_exporter` binary.
-- `node_exporter_group`: Group for the to run `node_exporter_user`.
-- `node_exporter_user`: User to run `node_exporter` as.
 - `node_exporter_version`: Version of node_exporter to install from source.
+
+The following variables are used on Windows:
+
+- `windows_exporter_version`: Version of windows_exporter to install using Chocolatey.
 
 See the [`defaults/main.yml`](defaults/main.yml) file for full documentation on required
 and optional role variables.
@@ -92,3 +101,4 @@ This project is maintained by the following GitHub users:
 
 
 [node-exporter]: https://github.com/prometheus/node_exporter
+[windows-exporter]: https://github.com/prometheus-community/windows_exporter

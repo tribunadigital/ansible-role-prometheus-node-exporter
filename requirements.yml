@@ -1,14 +1,12 @@
 ---
 collections:
   - name: chocolatey.chocolatey
-    version: 1.2.0
-  - name: community.docker
-    version: 3.0.0-a2
+    version: 1.5.0
   - name: community.general
-    version: 5.5.0
+    version: 7.1.0
 
 roles:
   - src: https://github.com/Ableton/ansible-role-pkg-mgr-path
     scm: git
     name: ableton.pkg_mgr_path
-    version: 0.0.2
+    version: 0.0.3

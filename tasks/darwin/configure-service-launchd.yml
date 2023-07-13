@@ -37,4 +37,3 @@
     name: "{{ node_exporter_ident }}"
     state: started
   when: node_exporter_plist_template is changed
-
