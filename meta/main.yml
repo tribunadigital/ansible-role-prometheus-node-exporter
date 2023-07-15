@@ -26,4 +26,6 @@ galaxy_info:
         - all
 
 dependencies:
-  - role: "ableton.pkg_mgr_path"
+  - src: ableton.pkg_mgr_path
+    version: 0.0.3
+    name: ableton.pkg_mgr_path
