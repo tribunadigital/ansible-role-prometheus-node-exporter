@@ -81,17 +81,28 @@
   changed_when: false
   register: uid
 
-- name: Unload node_exporter service if template file was changed  # noqa: no-handler
+- name: Unload node_exporter service if template or binary changed  # noqa: no-handler
   become: true
   ansible.builtin.command: >
     launchctl bootout gui/{{ uid.stdout }} {{ node_exporter_launchd_plist }}
   changed_when: false
   when: >
-    node_exporter_launchd_plist_template is changed and
+    (node_exporter_launchd_plist_template is changed or
+     _node_exporter_upgraded | default(false) | bool) and
     node_exporter_service_list is succeeded
 
-# The launchctl bootstrap command will fail if the service is already running, so we
-# check to see if the service is running before attempting to start it.
+- name: Stop node_exporter process after binary upgrade
+  become: true
+  ansible.builtin.command: "pkill -x node_exporter"
+  when: _node_exporter_upgraded | default(false) | bool
+  failed_when: false
+  changed_when: true
+
+- name: Wait for launchd to restart node_exporter
+  ansible.builtin.pause:
+    seconds: 3
+  when: _node_exporter_upgraded | default(false) | bool
+
 - name: Check if node_exporter service is running
   ansible.builtin.command: "pgrep node_exporter"
   failed_when: false
