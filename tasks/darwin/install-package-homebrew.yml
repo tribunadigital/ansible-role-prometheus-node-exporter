@@ -19,8 +19,29 @@
     state: present
   when: ansible_distribution_version is version_compare('10.14', '<')
 
-- name: Install node_exporter package
+- name: Get installed node_exporter version
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ ansible_pkg_mgr_bin }}/node_exporter --version 2>&1 | head -1 | awk '{print $3}'
+  args:
+    executable: /bin/bash
+  register: _node_exporter_installed_version
+  changed_when: false
+  failed_when: false
+
+- name: Install or upgrade node_exporter package
   community.general.homebrew:
     name: "node_exporter"
     install_options: "{{ homebrew_install_options }}"
-    state: present
+    state: >-
+      {{ 'latest'
+         if (_node_exporter_installed_version.rc == 0 and
+             _node_exporter_installed_version.stdout != node_exporter_version)
+         else 'present' }}
+  register: _node_exporter_brew_result
+
+- name: Set node_exporter upgraded fact for service restart
+  ansible.builtin.set_fact:
+    _node_exporter_upgraded: >-
+      {{ _node_exporter_brew_result is changed and
+         _node_exporter_installed_version.rc == 0 }}

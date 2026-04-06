@@ -35,9 +35,9 @@ node_exporter_process_priority_win: 2
 # User to run node_exporter as (only used on Unix platforms).
 node_exporter_user: "node_exporter"
 
-# Version of node_exporter to install. Because some package managers (like homebrew) don't
-# support pinning, and because others don't support the latest versions (like apt), this
-# variable is only relevant when node_exporter_install_from_binary is true.
+# Version of node_exporter to install. On macOS with Homebrew, the role will upgrade
+# to the latest available version if the installed version does not match. For binary
+# installs, this specifies the exact version to download from GitHub releases.
 node_exporter_version: "1.4.0"
 
 # Directory to scrape by the textfile collector.
